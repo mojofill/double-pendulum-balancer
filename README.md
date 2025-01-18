@@ -3,7 +3,9 @@ Simple triple jointed double pendulum on a horizontal slide with full physics im
 
 ## How to run
 Run `npm install esbuild`
+
 Run `npm start`
+
 If you don't have the `start` command, add a script to your `package.json` called `"start": "npx esbuild --bundle ./src/script.js --outfile=bundle.js"`
 
 ## Notes
