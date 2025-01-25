@@ -1,0 +1,25 @@
+ohhh SHIT
+
+thats where the calculus comes in. the gradient descent is the actual value we are propagating backwards, which is
+
+           d C
+delta L = -----  X   o'( zL )
+           d aL
+
+where C = cost function, aL = last layer, o = activation function (sigmoid), zL = weighted sum
+
+alpha = learning rate
+
+W1 = W1 - (or + depending on if ur doing gradient ascent or descent i think, ask chatgpt that)
+
+WL = WL - alpha * dC/dWL
+BL = BL - alpha * dC/dbL
+
+gradients (the partial derivatives) are:
+
+dC/dWl = delta L * a(L-1)^T
+dC/dbL = delta L
+
+wtf is that T? hopefully GPT will explain
+
+OHHH SHIT - PPO uses a ***clipped surrogate objective***. what i was thinking about makes total sense. essentially the teacher and the kid learns at the same rate so the kid isnt discouraged and the teacher is learning faster thru the kids mistakes.

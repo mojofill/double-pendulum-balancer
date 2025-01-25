@@ -1,0 +1,225 @@
+im tryna learn back propagation
+
+neurons that light up for a specific 
+
+/*
+https://youtu.be/5P7I-xPq8u8
+
+IMPORTANT: IN THE REFERENCES, PI MEANS POLICY FUNCTION
+
+model free = use past experiences
+model based = uses environment
+
+POLICY = AGENT. POLICY IS BASICALLY THE AI BRO THATS IT
+
+determinstic = it WILL happen, no matter what
+stochastic = there is randomness involved
+
+need a discount factor for every time step
+apply randomness to AI to fuck with it and make it fool proof to external uncertainties in the real world
+
+so wait a second -- i need ANOTHER ai ?!
+the critic??
+
+this is sick ASF
+
+interesting: if i understand whats happening, the "basic" ais use their past experience as their data set to learn from. however, if your not learning the "right" way, then all that learning your doing off your own data set is just not useful - you will spiral into NOT learning from your mistakes. thats what happened with my stupid cars; they would turn in circles bruh fuck that car neural network
+
+PPO on the other hand learns from its *current experience* (as well as other stuff). that eliminates that spiraling shit from before. i still dont properly get it yet, but we'll keep moving along the video
+
+convolutional = neurons r connected to "local" neurons
+
+densely connected = EVERY NEURON is connected to EVERY OTHER NEURON
+
+this is a continuous world, so we use "diagonal gaussian policies"
+
+"Note that in both cases we output log standard deviations instead of standard deviations directly."
+
+This is because log stds are free to take on any values in (-\infty, \infty), while stds must be nonnegative.
+
+check out the Diagonal Gaussian Policies here: https://spinningup.openai.com/en/latest/spinningup/rl_intro.html
+
+then you got trajectories, which are what happens to the agent in the world, from time=t to time=t+1
+
+a good reward function depends three things:
+
+    * the current state of the world
+    * the action just taken
+    * the next state of the world
+    * r = R(st, at, st+1)
+
+or it could just be the current state r = R(st), or state-action pair r = R(st, at)
+
+a good return sum would be either a finite, undiscounted sum of R(t) from t=0 to t=T, or an infinite discounted sum of R(t) with discount gamma C (0, 1), such that it is summation R(t)*gamma^t
+
+return is literally just the sum of rewards for every state
+
+reason for discount: sum will converge, and this makes it easier to understand the AI's current position and how to improve upon it
+
+you can use a mixture of these in real life, but in RL formalism its either this or that, no in between
+
+symbols:
+    * u, pi = policy function (basically the agent's output). u for deterministic, pi for stochastic
+    * theta or phi = parameter for policy (input layers)
+    * s, a, r = state, action, reward
+    * s0, p0 = first state of the world 
+    * *|st just means random time step, because its stochastic and has uncertainty
+    * s(t+1) = P(s(t), a(t))
+    * P = the function that calculates the probability of the worlds next state in the simulation of the environment. i think this stupid page isnt really defining it rather well for me to understand
+
+import value functions:
+    * Vpi = result if you start in s0 and always follow policy
+    * Qpi = result if you start in s0 and take an arbitrary aciton that may or may not come from the policy
+    * V* = result if you start in s0 and always follow OPTIMAL policy
+    * Q* = result if you start in s0 and take an arbitrary aciton that may or may not come from the policy, and then follow the OPTIMAL POLICY for the rest of the simulation
+
+Qpi = The On-Policy Action-Value Function is the value function we will be using to update and change the policy
+
+Bellman equations: reward of current state + reward of next state * lambda (the discount jawn obviously)
+
+Advantage function: Qpi - Vpi. just seeing if my new arbitrary action performed better than my current policy
+
+IMPORTANT: P(s, a) = probability of transition, of transitioning to state s(t+1) if i start in state s and take action a
+
+p0 = starting state distribution
+
+What to Learn
+    Another critical branching point in an RL algorithm is the question of what to learn. The list of usual suspects includes
+
+    * policies, either stochastic or deterministic,
+    * action-value functions (Q-functions),
+    * value functions,
+    * and/or environment models.
+
+ways to optimize policy function pi:
+either directly finding the optimal poicy (gradient descent) or indirectly finding it (local approximations)
+
+PPO maximizes a surrogate objective function
+
+from what i know its like training a teacher to know how to better correct the student, and then the student learns from the teacher
+
+you can use both policy optimization and q learning as a blend - it doesnt have to be one or the other, it could be both
+
+model based learning you would first learn the model of the environment and then predict it, but thats not really useful for what im doing right now, because the environment has nothing to do with the pendulum. model based learning is useful for future planning, but that's not useful for the pendulum
+
+*/
+
+/*
+https://youtu.be/hlv79rcHws0
+
+notes
+
+neural network sensitive to small changes
+
+PPO: limit updates to policy network
+base update on ratio of new policy/old policy
+account for goodness of state (advantage). how good a state in
+clip loss function (again because if it goes too far network will never recover)
+
+instead of taking a complete set of memories (trajectories), keep a fixed length about of current memories
+
+multiple network updates per sample
+    * minibatch stochastic gradient ascent(?? ascent??) (wtf is minibatch ??)
+    minibatch is basically what it sounds like: take a small subset of training data to calculate loss function gradient
+
+can use multiple parallel actors
+
+do i need minibatch? yeah i guess i should for computational efficiency
+
+shuffle memories then take multiples of batch_size (shuffle randomly then choose every batch_size memory)
+
+two distinct networks (this is the player/coach, student/teacher frameworks that those videos were suggesting)
+
+critic and actor - the two fundamental parts of a PPO algorithm
+
+critic evaluates states (not s,a pairs? what does that mean? look into this more. i thought state WAS s??)
+
+actor decides what to do based on current state
+
+outputs probabilities (basically its output jawn) for a distribution
+
+we are using a diagonal gaussian policy, which is different from the video, so thats a bummer. however it should be relatively the same. diagonal gaussian is just a fancy term for continous action spaces, whereas categorical are discrete action spaces
+
+implementation notes: 
+
+    * fixed memory T
+    * track states, actions, rewards, dones (finished what it was supposed to do), values (of states), log probs (output layer)
+    * shuffle memory and sample batches (batch_size)
+    * 4 epochs of updates on each batch
+
+3 parameters
+PPO has a shit ton of parameters, so you gotta tune them carefully type soul
+^^ hyper-parameters
+
+T should be much shorter than the episode (which is all the states)
+
+episode = trajectory (same formalism)
+
+update rule for actor: (very complex)
+
+
+LOSS FUNCTION FOR ACTOR:
+--------------------------------------------------------------------------------------------------
+loss function (actor) = (average) EXPECTATION VALUE X CURR POLICY / OLD POLICY X ADVANTAGE
+
+abbrviation for ratio: r_t = p_t/p_old_t
+
+pi_theta (at | st) = probability distribution of action given current state
+
+every T steps, sample a minibatch of batch_size, then compute the loss for that batch and update neural network, theta changes so new policy changes as well
+
+loss function can STILL be huge, so we add one more hyper-parameter, epsilon to clip r_t (ratio of new / old policy)
+
+advantage = benefit of new state over the old state
+
+d(t) = r_t + gamma (discount) X Value of next state - Value of current state
+
+lambda = smoothing parameter
+
+total "reduction" coefficient = gamma * lambda
+
+LOSS FUNCTION FOR CRITIC
+---------------------------------------------------------------------------------------------------
+return (reward? i think he means for every state) = advantage + critic value (from memory)
+
+loss function = MEAN SQUARED ERROR (return - critic value (from CURRENT network))
+^^^ this is the "cost" function of PPO
+
+----------------------------------------------------------------------------------------------------
+total loss = average expected value * ( loss of actor - c1 * loss of critic + c2 * entropy term)
+
+in our case, we dont need entropy term, because we have two separate neural networks for the actor and the critic
+
+c1 = 0.5
+
+*/
+
+/*
+data structures:
+
+simulation replay buffers
+actor and critic neural networks
+class for agent (both the actor and the critic for this actor are in this agent)
+main loop to train and evalue agent
+
+actor network: n_actions, input size, learning rate alpha, fully connected 1 and 2 inner layers, and checkpoint directory?
+
+that is simple enough - checkpoints serve to save the current training session. i could implement this if i wanted to but i dont particularly care for it; i just want the training itself to work
+
+learning rate = step size of each gradient ascnet/descent update step
+
+critic can have way higher learning rate b/c not as sensitive as actor hyper parameters
+
+the CRITIC calculates the value of each state, and then learns it after we give it the correct values of each state and learns how to predict better using back propagation
+
+essentially all PPO does is calculate a certain value for critic, make the critic better thru back prop, and then use the critic to calculate the advantage of the new policy, and then make the actor better thru another back prop
+
+its time to learn back prop
+
+am i out of my lane? should i just learn basic pytorch, then try to make my own ai?
+
+fuck nah im him never doubt me
+
+clamping is to make sure the agent doesnt get too far off course and forget what it learned
+
+*/

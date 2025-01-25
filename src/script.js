@@ -1,4 +1,4 @@
-import AI from "./ai/ai.js";
+import Agent from "./PPO/agent";
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
@@ -6,8 +6,9 @@ const ctx = canvas.getContext('2d');
 canvas.width = canvas.height = 1000;
 
 const dt = 0.01;
-const g = 500; // might have to tweak
-const damp = false;
+const g = 1000; // might have to tweak
+const damp = true;
+const damp_ratio = 0.9999;
 
 // fuck all that just make a simple pendulum and see what happens
 
@@ -24,11 +25,11 @@ const r1 = 10;
 const r2 = 10;
 
 // rotational variables
-let a1 = 0;
+let a1 = 3.14;
 let a1_v = 0;
 // dont need angular b/c it's calculated every time step
 
-let a2 = 3.14/2;
+let a2 = 3.14;
 let a2_v = 0;
 // dont need angular b/c it's calculated every time step
 
@@ -58,7 +59,21 @@ const PIVOT_FRAME_OF_REFERENCE = false;
 
 let run_time = 0;
 
-const ai = new AI();
+/*
+do i need to add m1, m2, m_pivot, and g?
+
+input dimensions:
+    * a1
+    * a2
+    * a1_v
+    * a2_v
+    * a1_a
+    * a2_a
+*/
+
+const actor_n_layers = 5;
+const actor_neurons_per_layer = []
+const agent = new Agent()
 
 function render(x, y, r, c='white') {
     ctx.beginPath();
@@ -167,8 +182,9 @@ function loop() {
 
     // dampening if i want it
     if (damp) {
-        a1_v *= 0.99;
-        a2_v *= 0.99;
+        a1_v *= damp_ratio;
+        a2_v *= damp_ratio;
+        p1vx *= damp_ratio;
     }
 
     requestAnimationFrame(loop);
